@@ -23,6 +23,18 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v3.0.2
 
+      - name: Set up python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+
+      - name: Install openapi-spec-validator
+        run: pip install -r openapi-spec-validator
+
+      - name: Check v1 spec
+        run: make check-api-spec
+
       - name: Check that source has been prepared
         run: |
           ./tools/prepare-source.sh
