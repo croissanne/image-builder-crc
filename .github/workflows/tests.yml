@@ -107,6 +107,11 @@ jobs:
     - name: Process template
       run: |
         mkdir processed-templates
+        oc process -f templates/image-builder-clowder.yml \
+          -p IMAGE_TAG=image_tag \
+          --local \
+          -o yaml > processed-templates/image-builder-clowder.yml
+
         oc process -f templates/image-builder.yml \
           -p IMAGE_TAG=image_tag \
           --local \
