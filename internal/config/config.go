@@ -20,6 +20,7 @@ type ImageBuilderConfig struct {
 	OsbuildAzureLocation string `env:"OSBUILD_AZURE_LOCATION"`
 	DistributionsDir     string `env:"DISTRIBUTIONS_DIR"`
 	MigrationsDir        string `env:"MIGRATIONS_DIR"`
+	TernMigrationsDir    string `env:"TERN_MIGRATIONS_DIR"`
 	PGHost               string `env:"PGHOST"`
 	PGPort               string `env:"PGPORT"`
 	PGDatabase           string `env:"PGDATABASE"`

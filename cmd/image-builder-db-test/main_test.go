@@ -5,6 +5,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"os/exec"
 	"strings"
 	"testing"
 	"time"
@@ -34,6 +35,7 @@ func conf(t *testing.T) *config.ImageBuilderConfig {
 		ListenAddress: "unused",
 		LogLevel:      "INFO",
 		MigrationsDir: "/usr/share/image-builder/migrations",
+		TernMigrationsDir: "/usr/share/image-builder/migrations-tern",
 		PGHost:        "localhost",
 		PGPort:        "5432",
 		PGDatabase:    "imagebuilder",
@@ -67,6 +69,19 @@ func migrateUp(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func migrateTern(t *testing.T) {
+	// run tern migration on top of existing db
+	c := conf(t)
+
+	cmd := exec.Command("tern", "migrate",
+		"-m", c.TernMigrationsDir,
+		"--host", c.PGHost, "--port", c.PGPort,
+		"--user", c.PGUser, "--password", c.PGPassword,
+		"--sslmode", c.PGSSLMode)
+	err := cmd.Run()
+	require.NoError(t, err)
+}
+
 func connect(t *testing.T) *pgx.Conn {
 	conn, err := pgx.Connect(context.Background(), connStr(t))
 	require.NoError(t, err)
@@ -79,6 +94,7 @@ func tearDown(t *testing.T) {
 	conn.Exec(context.Background(), "drop table clones")
 	conn.Exec(context.Background(), "drop table composes")
 	conn.Exec(context.Background(), "drop table schema_migrations")
+	conn.Exec(context.Background(), "drop table schema_version")
 }
 
 func testMigration(t *testing.T) {
@@ -168,6 +184,9 @@ func testMigration(t *testing.T) {
 	// make sure migrating a fully migrated db doesn't error out
 	migrateUp(t)
 
+	// make sure tern migration on top a fully migrated golang-migrate db succeeds
+	migrateTern(t)
+
 	// Check data inserted at migration step 1 and 2 are still accessible
 	d, err := db.InitDBConnectionPool(connStr(t))
 	_, count, err := d.GetComposes(ORGID1, fortnight, 100, 0)
@@ -197,7 +216,7 @@ func testInsertCompose(t *testing.T) {
 	imageName := "MyImageName"
 
 	// setup
-	migrateUp(t)
+	migrateTern(t)
 
 	// test
 	err = d.InsertCompose(uuid.New().String(), ANR1, ORGID1, &imageName, []byte("{}"))
@@ -218,7 +237,7 @@ func testGetCompose(t *testing.T) {
 	defer tearDown(t)
 
 	// setup
-	migrateUp(t)
+	migrateTern(t)
 	err = d.InsertCompose(uuid.New().String(), ANR1, ORGID1, &imageName, []byte("{}"))
 	require.NoError(t, err)
 	err = d.InsertCompose(uuid.New().String(), ANR1, ORGID1, &imageName, []byte("{}"))
@@ -263,7 +282,7 @@ func testCountComposesSince(t *testing.T) {
 	defer tearDown(t)
 
 	// setup
-	migrateUp(t)
+	migrateTern(t)
 	conn := connect(t)
 	defer conn.Close(context.Background())
 	insert := "INSERT INTO composes(job_id, request, created_at, account_number, org_id, image_name) VALUES ($1, $2, CURRENT_TIMESTAMP - interval '2 days', $3, $4, $5)"
@@ -299,7 +318,7 @@ func testCountGetComposesSince(t *testing.T) {
 	defer tearDown(t)
 
 	// setup
-	migrateUp(t)
+	migrateTern(t)
 	conn := connect(t)
 	defer conn.Close(context.Background())
 
@@ -332,7 +351,7 @@ func testCountGetComposesSince(t *testing.T) {
 func testGetComposeImageType(t *testing.T) {
 	d, err := db.InitDBConnectionPool(connStr(t))
 	require.NoError(t, err)
-	migrateUp(t)
+	migrateTern(t)
 	defer tearDown(t)
 	conn := connect(t)
 	defer conn.Close(context.Background())
@@ -370,7 +389,7 @@ func testGetComposeImageType(t *testing.T) {
 func testClones(t *testing.T) {
 	d, err := db.InitDBConnectionPool(connStr(t))
 	require.NoError(t, err)
-	migrateUp(t)
+	migrateTern(t)
 	defer tearDown(t)
 	conn := connect(t)
 	defer conn.Close(context.Background())
