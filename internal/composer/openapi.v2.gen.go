@@ -35,7 +35,9 @@ const (
 	ImageTypesAwsRhui        ImageTypes = "aws-rhui"
 	ImageTypesAwsSapRhui     ImageTypes = "aws-sap-rhui"
 	ImageTypesAzure          ImageTypes = "azure"
+	ImageTypesAzureEap7Rhui  ImageTypes = "azure-eap7-rhui"
 	ImageTypesAzureRhui      ImageTypes = "azure-rhui"
+	ImageTypesAzureSapRhui   ImageTypes = "azure-sap-rhui"
 	ImageTypesEdgeCommit     ImageTypes = "edge-commit"
 	ImageTypesEdgeContainer  ImageTypes = "edge-container"
 	ImageTypesEdgeInstaller  ImageTypes = "edge-installer"
@@ -250,9 +252,11 @@ type ContainerUploadStatus struct {
 
 // Customizations defines model for Customizations.
 type Customizations struct {
-	Containers *[]Container  `json:"containers,omitempty"`
-	Filesystem *[]Filesystem `json:"filesystem,omitempty"`
-	Packages   *[]string     `json:"packages,omitempty"`
+	Containers  *[]Container  `json:"containers,omitempty"`
+	Directories *[]Directory  `json:"directories,omitempty"`
+	Files       *[]File       `json:"files,omitempty"`
+	Filesystem  *[]Filesystem `json:"filesystem,omitempty"`
+	Packages    *[]string     `json:"packages,omitempty"`
 
 	// Extra repositories for packages specified in customizations. These
 	// repositories will only be used to depsolve and retrieve packages
@@ -269,6 +273,24 @@ type Customizations struct {
 	} `json:"services,omitempty"`
 	Subscription *Subscription `json:"subscription,omitempty"`
 	Users        *[]User       `json:"users,omitempty"`
+}
+
+// A custom directory to create in the final artifact.
+type Directory struct {
+	// Ensure that the parent directories exist
+	EnsureParents *bool `json:"ensure_parents,omitempty"`
+
+	// Group of the directory as a group name or a gid
+	Group *interface{} `json:"group,omitempty"`
+
+	// Permissions string for the directory in octal format
+	Mode *string `json:"mode,omitempty"`
+
+	// Path to the directory
+	Path string `json:"path"`
+
+	// Owner of the directory as a user name or a uid
+	User *interface{} `json:"user,omitempty"`
 }
 
 // Error defines model for Error.
@@ -289,6 +311,27 @@ type ErrorList struct {
 	Page  int     `json:"page"`
 	Size  int     `json:"size"`
 	Total int     `json:"total"`
+}
+
+// A custom file to create in the final artifact.
+type File struct {
+	// Contents of the file as plain text
+	Data *string `json:"data,omitempty"`
+
+	// Ensure that the parent directories exist
+	EnsureParents *bool `json:"ensure_parents,omitempty"`
+
+	// Group of the file as a gid or a group name
+	Group *interface{} `json:"group,omitempty"`
+
+	// Permissions string for the file in octal format
+	Mode *string `json:"mode,omitempty"`
+
+	// Path to the file
+	Path string `json:"path"`
+
+	// Owner of the file as a uid or a user name
+	User *interface{} `json:"user,omitempty"`
 }
 
 // Filesystem defines model for Filesystem.
@@ -427,7 +470,10 @@ type PackageMetadata struct {
 	Version   string  `json:"version"`
 }
 
-// Repository defines model for Repository.
+// Repository configuration.
+// At least one of the 'baseurl', 'mirrorlist', 'metalink' properties must
+// be specified. If more of them are specified, the order of precedence is
+// the same as listed above.
 type Repository struct {
 	Baseurl  *string `json:"baseurl,omitempty"`
 	CheckGpg *bool   `json:"check_gpg,omitempty"`
@@ -452,7 +498,10 @@ type Subscription struct {
 	BaseUrl       string `json:"base_url"`
 	Insights      bool   `json:"insights"`
 	Organization  string `json:"organization"`
-	ServerUrl     string `json:"server_url"`
+
+	// Optional flag to use rhc to register the system, which also always enables Insights.
+	Rhc       *bool  `json:"rhc,omitempty"`
+	ServerUrl string `json:"server_url"`
 }
 
 // This should really be oneOf but AWSS3UploadOptions is a subset of
