@@ -3,7 +3,7 @@ name: Spec update
 on:
   schedule:
     # Monday morning
-    - cron: '0 6 * * 1'
+    - cron: '35 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -26,5 +26,3 @@ jobs:
           title: "internal: update api specs"
           commit-message: "internal: update api specs"
           body: Composer api spec update.
-          token: ${{ secrets.UPDATE_API_SPEC_TOKEN }}
-          author: schutzbot <schutzbot@gmail.com>
