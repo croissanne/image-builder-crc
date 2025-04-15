@@ -6,12 +6,19 @@
     ":gomod"
   ],
   "prConcurrentLimit": 3,
-  "constraints": {
-    "go": "1.22"
-  },
   "packageRules": [
     {
+      "matchManagers": ["gomod"],
+      "matchDepTypes": ["golang-version"],
+      "enabled": false
+    },
+    {
+      "matchDatasources": ["gomod"],
       "matchDepTypes": ["golang"],
+      "enabled": false
+    },
+    {
+      "matchDatasources": ["golang-version"],
       "enabled": false
     }
   ]
