@@ -9,16 +9,16 @@
     {
       "matchManagers": ["gomod"],
       "matchDepTypes": ["golang-version"],
-      "enabled": false
+      "allowedVersions": "<=1.22.9"
     },
     {
-      "matchDatasources": ["gomod"],
+      "matchManagers": ["gomod"],
       "matchDepTypes": ["golang"],
-      "enabled": false
+      "allowedVersions": "<=1.22.9"
     },
     {
       "matchDatasources": ["golang-version"],
-      "enabled": false
+      "allowedVersions": "<=1.22.9"
     }
   ]
 }
