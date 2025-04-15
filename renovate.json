@@ -1,24 +1,7 @@
 {
   "extends": [
     "github>konflux-ci/mintmaker//config/renovate/renovate.json",
-    "group:allNonMajor",
     "schedule:earlyMondays"
   ],
-  "prConcurrentLimit": 3,
-  "packageRules": [
-    {
-      "matchManagers": ["gomod"],
-      "matchDepTypes": ["golang-version"],
-      "enabled": false
-    },
-    {
-      "matchDatasources": ["gomod"],
-      "matchDepTypes": ["golang"],
-      "enabled": false
-    },
-    {
-      "matchDatasources": ["golang-version"],
-      "enabled": false
-    }
-  ]
+  "prConcurrentLimit": 3
 }
