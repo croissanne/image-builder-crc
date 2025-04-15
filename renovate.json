@@ -8,5 +8,11 @@
   "prConcurrentLimit": 3,
   "constraints": {
     "go": "1.22"
-  }
+  },
+  "packageRules": [
+    {
+      "matchDepTypes": ["golang"],
+      "enabled": false
+    }
+  ]
 }
