@@ -1,12 +1,13 @@
 {
   "extends": [
     "github>konflux-ci/mintmaker//config/renovate/renovate.json",
-    "group:allNonMajor",
-    "schedule:daily",
-    ":gomod"
+    "schedule:daily"
   ],
   "prConcurrentLimit": 3,
-  "constraints": {
-    "go": "1.22"
-  }
+  "packageRules": [
+    {
+      "matchDepTypes": ["golang-version"],
+      "enabled": false
+    }
+  ]
 }
