@@ -136,11 +136,25 @@ function instanceWaitSSH() {
 
   for LOOP_COUNTER in {0..30}; do
       if ssh-keyscan "$HOST" > /dev/null 2>&1; then
-          echo "SSH is up!"
+          echo "SSH port is open!"
           break
       fi
       echo "Retrying in 5 seconds... $LOOP_COUNTER"
       sleep 5
+  done
+
+  for LOOP_COUNTER in {0..10}; do
+      set +e
+      SSH_OUTPUT=$(ssh -oStrictHostKeyChecking=no -i ./keypair.pem "$SSH_USER@$HOST" true 2>&1)
+      set -e
+
+      if echo "$SSH_OUTPUT" | grep -q "System is booting up. Unprivileged users are not permitted to log in yet"; then
+          echo "System still booting, retrying... ($LOOP_COUNTER/10)"
+          sleep 5
+      else
+          echo "SSH is ready!"
+          break
+      fi
   done
 }
 
